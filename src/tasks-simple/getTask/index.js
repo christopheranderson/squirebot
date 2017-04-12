@@ -6,7 +6,7 @@ module.exports = function (context, req) {
     context.log("Query: " + JSON.stringify(req.query));
 
     if (req.query.taskName || (req.body && req.body.taskName)) {
-        const task = tasks.getTask((req.query.taskName || req.body.taskName));
+        const task = null; //tasks.getTask((req.query.taskName || req.body.taskName));
 
         if (!task) {
             context.res = {
