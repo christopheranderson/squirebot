@@ -58,8 +58,6 @@ module.exports.dialog = [
                     if (body && body.message) {
                         message += ": " + body.message;
                     }
-
-                    message += err;
                     
                     session.endDialog(message);
                     return;
