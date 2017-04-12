@@ -1,8 +1,9 @@
+
 const tasks = {
     "fetch me my lance": {
         "action": {
             "type": "url",
-            "url": "http://localhost:7071/api/lanceFetcher",
+            "url": process.env.LANCEFETCHERAPI || "http://localhost:7071/api/lanceFetcher",
             "method": "POST"
         },
         "parameters": [
@@ -13,6 +14,23 @@ const tasks = {
             {
                 "prompt": "What material would you live it made of? (wood|metal)",
                 "name": "lance_material"
+            }
+        ]
+    },
+    "add github issue": {
+        "action":{
+            "type":"url",
+            "url": process.env.LOGICAPPURL,
+            "method": "POST"
+        },
+        "parameters": [
+            {
+                "prompt":"What's the title of your issue?",
+                "name":"issue_title"
+            },
+            {
+                "prompt":"What's the description of your issue?",
+                "name":"issue_description"
             }
         ]
     }
