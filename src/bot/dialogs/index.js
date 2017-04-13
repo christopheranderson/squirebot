@@ -49,7 +49,8 @@ module.exports.dialog = [
             const options = {
                 "url": session.dialogData.task.action.url,
                 "json": true,
-                "body": body
+                "body": body,
+                "method":"POST"
             }
 
             request(options, (err, response, body) => {
