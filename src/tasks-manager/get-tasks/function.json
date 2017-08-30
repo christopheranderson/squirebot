@@ -1,0 +1,24 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "documentDB",
+      "name": "tasks",
+      "databaseName": "squire",
+      "collectionName": "test",
+      "connection": "chrande-squire_DOCUMENTDB",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}
