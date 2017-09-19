@@ -1,21 +1,21 @@
 const tasks = {
     "fetch me my lance": {
         "action": {
-            "type": "url",
+            "type": "url", 
             "url": "http://localhost:7071/api/lanceFetcher",
-            "method": "POST"
+            "method": "POST" 
         },
         "parameters": [
             {
                 "prompt": "The long one or the short one? (long|short)",
-                "name": "lance_length"
+                "name": "lance_length" 
             },
             {
                 "prompt": "What material would you live it made of? (wood|metal)",
-                "name": "lance_material"
+                "name": "lance_material" 
             }
         ]
-    }
+    } 
 };
 
 

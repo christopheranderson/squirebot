@@ -1,0 +1,21 @@
+{
+  "name": "tasks-functions",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "guid": "0.0.12",
+    "mongodb": "^2.2.31",
+    "supertest": "^3.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3",
+    "supertest": "^3.0.0"
+  }
+}

@@ -1,0 +1,13 @@
+.card-width{
+    width: calc(50% - 1em);
+}
+
+.card-flex {
+    flex-grow: 1;
+}
+
+@media screen and (max-width: 400px) {
+    .card-width{
+        width: 100%;
+    }
+}
