@@ -31,14 +31,25 @@ function run(context, req) {
             } else {
                 const count = context.req.query.count;
                 const offset = context.req.query.offset;
+                const name = context.req.query.name;
 
-                taskService.getTasks(count, offset)
-                    .catch(results => {
-                        context.res.status(400).json({ message: results });
-                    })
-                    .then(results => {
-                        context.res.status(200).json(results);
-                    });
+                if (name) {
+                    taskService.getTaskByName(name)
+                        .catch(results => {
+                            context.res.status(404).json({ message: results });
+                        })
+                        .then(results => {
+                            context.res.status(200).json(results);
+                        });
+                } else {
+                    taskService.getTasks(count, offset)
+                        .catch(results => {
+                            context.res.status(400).json({ message: results });
+                        })
+                        .then(results => {
+                            context.res.status(200).json(results);
+                        });
+                }
             }
             break;
         case "POST":

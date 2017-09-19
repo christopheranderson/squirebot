@@ -24,7 +24,7 @@ export class TasksService {
             if (err.error instanceof Error) {
               rej(err);
             } else {
-              rej(new Error("Bad response: status: ${err.status}, body: ${err.error}"));
+              rej(new Error(`Bad response: status: ${err.status}, body: ${JSON.stringify(err.error, null, " ")}`));
             }
           });
       });
@@ -45,7 +45,7 @@ export class TasksService {
             if (err.error instanceof Error) {
               rej(err);
             } else {
-              rej(new Error("Bad response: status: ${err.status}, body: ${err.error}"));
+              rej(new Error(`Bad response: status: ${err.status}, body: ${JSON.stringify(err.error, null, " ")}`));
             }
           });
       });
@@ -60,15 +60,19 @@ export class TasksService {
       return Promise.resolve(tasks[i]);
     } else {
       const p: Promise<ITask> = new Promise((res, rej) => {
+        let url = `${this.baseUrl}/api/tasks/${task.id}`;
+        if (!task.id) {
+          url = `${this.baseUrl}/api/tasks/`;
+        }
         this.http
-          .post(`${this.baseUrl}/api/tasks/${task.id}`, task)
+          .post(url, task)
           .subscribe(data => {
             res(data as ITask); // will only have id and etag on it
           }, (err) => {
             if (err.error instanceof Error) {
               rej(err);
             } else {
-              rej(new Error("Bad response: status: ${err.status}, body: ${err.error}"));
+              rej(new Error(`Bad response: status: ${err.status}, body: ${JSON.stringify(err.error, null, " ")}`));
             }
           });
       });

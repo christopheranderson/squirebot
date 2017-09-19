@@ -11,7 +11,10 @@
   "dependencies": {
     "guid": "0.0.12",
     "mongodb": "^2.2.31",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "botbuilder": "^3.7.0",
+    "request": "^2.81.0",
+    "restify": "^4.3.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",

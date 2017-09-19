@@ -10,6 +10,7 @@ import { ITask } from "../models/task";
 enum EditState {
   clean,
   dirty,
+  new,
   saving,
   saved,
   savefailure
@@ -33,6 +34,8 @@ export class TaskDetailComponent implements OnInit {
     this.route.paramMap
       .switchMap((params: ParamMap) => {
         if (params.get("id") === "new") {
+          this.isEditMode = true;
+          this.editState = EditState.new;
           return Promise.resolve({
             action: {
               type: "url",
@@ -77,6 +80,12 @@ export class TaskDetailComponent implements OnInit {
   }
 
   cancelUpdate() {
+    if (this.editState === EditState.new || this.editState === EditState.dirty) {
+      const answer = confirm("Are you sure you want to cancel?");
+      if (!answer) {
+        return;
+      }
+    }
     this.editState = EditState.dirty;
     this.tasksService
       .getTask(this.task.id)

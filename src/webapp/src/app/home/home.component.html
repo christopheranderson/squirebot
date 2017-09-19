@@ -1,3 +1,4 @@
+<a [routerLink]="['/task', 'new']" class="btn btn-primary">New task</a>
 <div class="d-flex flex-wrap align-items-stretch w-100">
 <div *ngFor="let task of tasks" class="card m-1 card-flex">
     <h4 class="card-header">{{task.title}}</h4>
@@ -6,3 +7,4 @@
       <a [routerLink]="['/task', task.id]" class="btn btn-primary">Go to task</a>
     </div>
   </div>
+</div>

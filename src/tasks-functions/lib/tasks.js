@@ -1,5 +1,13 @@
-const mongodb = require('mongodb');
 const guid = require("guid");
+const request = require("request");
+
+const MongoHelper = require("./mongohelper").MongoHelper;
+
+const url = process.env.MONGO_URL;
+const TASKS_COLLECTION = "tasks";
+const RUNS_COLLECTION = "runs";
+
+const db = new MongoHelper(url);
 
 /**
  * @type {Task[]}
@@ -13,7 +21,7 @@ const LOCAL_TASKS = [{
     action: {
         type: "url",
         payload: {
-            url: "http://localhost:7071/api/fetchLance",
+            url: "http://localhost:7071/api/lanceFetcher",
             method: "POST"
         }
     },
@@ -90,7 +98,20 @@ class TaskService {
             }
 
         } else {
-            throw new Error("Not yet implemented");
+            return db.getOne(TASKS_COLLECTION, { id });
+        }
+    }
+
+    getTaskByName(title) {
+        if (this.useInMemory) {
+            const task = LOCAL_TASKS.find(task => task.title === name);
+            if (!task) {
+                return Promise.reject("Not found");
+            } else {
+                return Promise.resolve(task);
+            }
+        } else {
+            return db.getOne(TASKS_COLLECTION, { title });
         }
     }
 
@@ -114,7 +135,7 @@ class TaskService {
                 return (index >= offset && index < offset + count);
             }));
         } else {
-            return Promise.reject("Not yet implemented");
+            return db.get(TASKS_COLLECTION, count, offset);
         }
     }
 
@@ -166,7 +187,9 @@ class TaskService {
                 etag: t.etag
             });
         } else {
-            return Promise.reject("Not yet implemented");
+            task.lastUpdated = Date.now();
+            task.etag = "new";
+            return db.upsert(TASKS_COLLECTION, task);
         }
     }
 
@@ -201,7 +224,8 @@ class TaskService {
                 return Promise.reject("Server error");
             }
         } else {
-            throw new Error("Not yet implemented");
+            task.lastUpdated = Date.now();
+            return db.upsert(TASKS_COLLECTION, task);
         }
     }
 
@@ -228,6 +252,182 @@ class TaskService {
     }
 }
 
+/**
+ * @typedef {Object} RunResponseMessage
+ * @property {string} message
+ * @property {string} card
+ */
+
+/**
+ * @typedef {Object} RunResponse
+ * @property {boolean} done 
+ * @property {number} status
+ * @property {RunResponseMessage} body
+ */
+
+/**
+ * @typedef {Object} Run
+ * @property {string} id
+ * @property {Task} task
+ * @property {RunResponse} response
+ * @property {number} created
+ * @property {number} lastUpdated
+ */
+
+/**
+ * @type {TaskRunnerService}
+ */
+let taskRunnerSingleton = null;
+
+/**
+ * @type {Run[]}
+ */
+const LOCAL_RUNS = [];
+
+class TaskRunnerService {
+    constructor(useInMemory) {
+        this.useInMemory = useInMemory;
+    }
+
+    /**
+     * Gets a singleton of the TaskService
+     * @param {boolean} useInMemory 
+     * @returns {TaskRunnerService}
+     */
+    static getService(useInMemory) {
+        if (taskRunnerSingleton === null) {
+            taskRunnerSingleton = new TaskRunnerService(useInMemory === true);
+        }
+        return taskRunnerSingleton;
+    }
+
+    /**
+     * Starts a task. Returns a promise with a Run record.
+     * @param {Task} task 
+     * @param {{parameters: {Object.<string, string>}}} results
+     * @returns {Promise<Run|string>}
+     */
+    startRun(task, results) {
+
+        const options = {
+            "url": task.action.payload.url,
+            "method": task.action.payload.method
+        }
+        switch (task.action.payload.method) {
+            case "POST":
+                const body = {};
+                if (results.parameters) {
+                    for (let parameter of results.parameters) {
+                        body[parameter.name] = parameter.value;
+                    }
+                }
+                options.json = true;
+                options.body = body;
+                break;
+            default:
+                return Promise.reject(new Error(`HTTP Method ${task.action.payload.method} not supported`));
+                break;
+        }
+
+        /**
+         * @type {Run}
+         */
+        const run = {
+            id: guid.raw(),
+            created: Date.now(),
+            lastUpdated: Date.now(),
+            task: task,
+            response: {
+                done: false,
+                status: null,
+                body: null
+            }
+        }
+
+        this._upsertRun(run);
+
+        return new Promise((res, rej) => {
+            request(options, (err, response, body) => {
+                if (err || !(response.statusCode >= 200 && response.statusCode <= 204)) {
+                    let message = "Sorry, something went wrong";
+                    if (body && body.message) {
+                        message += ": " + body.message;
+                    }
+                    rej(message);
+                    return;
+                }
+
+                run.response.body = body;
+                run.response.status = response.statusCode;
+                if (response.statusCode == 200) {
+                    run.response.done = true;
+                }
+
+                this._upsertRun(run).catch(rej).then(res);
+            });
+        })
+    }
+
+    /**
+     * Returns all Runs by a given task id
+     * @param {string} taskid 
+     * @returns {Promise<Run[]>}
+     */
+    getRunsByTask(taskid) {
+        if (this.useInMemory) {
+            run.lastUpdated = Date.now();
+            let runs = LOCAL_RUNS.filter(r => r.id === id)
+            if (runs) {
+                return Promise.resolve(runs);
+            } else {
+                return Promise.reject(new Error("Not Found"));
+            }
+        } else {
+            return db.getOne(RUNS_COLLECTION, {"task.id": taskid});
+        }
+    }
+
+    /**
+     * Returns a given run by its id
+     * @param {string} id 
+     * @returns {Promise<Run>}
+     */
+    getRun(id) {
+        if (this.useInMemory) {
+            run.lastUpdated = Date.now();
+            let run = LOCAL_RUNS.find(r => r.id === id)
+            if (run) {
+                return Promise.resolve(run);
+            } else {
+                return Promise.reject(new Error("Not found"));
+            }
+        } else {
+            return db.getOne(RUNS_COLLECTION, {id});
+        }
+    }
+
+    /**
+     * PRIVATE!!!!!!!!!
+     * @param {Run} run 
+     * @returns {Promise<Run>}
+     */
+    _upsertRun(run) {
+        if (this.useInMemory) {
+            run.lastUpdated = Date.now();
+            let index = LOCAL_RUNS.findIndex(r => r.id === run.id)
+            if (index >= 0) {
+                const old = LOCAL_RUNS[index] = run;
+            } else {
+                LOCAL_RUNS.push(run);
+            }
+            return Promise.resolve(run);
+        } else {
+            return db.upsert(RUNS_COLLECTION, run);
+        }
+    }
+}
+
 module.exports = {
-    TaskService
+    TaskService,
+    TaskRunnerService
 }

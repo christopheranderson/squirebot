@@ -17,4 +17,7 @@ export class HomeComponent implements OnInit {
     this.tasksService.getTasks().then(tasks => this.tasks = tasks);
   }
 
+  createTask() {
+    console.log("Create task called");
+  }
 }
