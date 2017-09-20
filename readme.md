@@ -29,7 +29,7 @@ This will spin up two powershell windows and when everything is loaded, it will 
 
 #### Functions
 
-```
+```shell
 cd ./src/tasks-functions
 npm i
 npm start
@@ -41,7 +41,7 @@ This should spin up the Function host
 
 #### Web App
 
-```
+```shell
 cd ./src/webapp
 npm i
 npm start
@@ -82,7 +82,7 @@ This is a simple example of creating a hello world task
 
 1. Create a new http Function (`func new -l javascript -t HttpTrigger -n hello`)
 2. Use this code for `./hello/index.js`
-    ```
+    ```javascript
         module.exports = function (context, req) {
         context.log('JavaScript HTTP trigger function processed a request.');
 
