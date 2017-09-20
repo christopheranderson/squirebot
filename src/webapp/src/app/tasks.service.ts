@@ -7,7 +7,7 @@ import { HttpClient } from "@angular/common/http";
 
 @Injectable()
 export class TasksService {
-  baseUrl = environment.baseUrl;
+  baseUrl = environment.baseUrl || "";
 
   constructor(private http: HttpClient) { }
 
@@ -24,6 +24,11 @@ export class TasksService {
             if (err.error instanceof Error) {
               rej(err);
             } else {
+              if (err.status === 0) {
+                if (isDevMode()) {
+                  alert("Could not connect to host, might need to enable CORS or make sure it is up and running...");
+                }
+              }
               rej(new Error(`Bad response: status: ${err.status}, body: ${JSON.stringify(err.error, null, " ")}`));
             }
           });
