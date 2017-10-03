@@ -104,7 +104,7 @@ class TaskService {
 
     getTaskByName(title) {
         if (this.useInMemory) {
-            const task = LOCAL_TASKS.find(task => task.title === name);
+            const task = LOCAL_TASKS.find(task => task.title === title);
             if (!task) {
                 return Promise.reject("Not found");
             } else {
