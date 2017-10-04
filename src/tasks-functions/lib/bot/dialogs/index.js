@@ -94,7 +94,7 @@ module.exports.dialog = [
                             session.endDialog(body.message);
                         }
                     } else if (response.statusCode == 202) {
-                        session.endDialog("I've started that task for you.");
+                        session.endDialog("I've started that task for you. You can get the results at: " + run.response.body);
                     } else {
                         session.endDialog("I've finished that task for you.");
                     }
@@ -118,7 +118,7 @@ module.exports.dialog = [
                                 session.endDialog(body.message);
                             }
                         } else if (!run.response.done) {
-                            session.endDialog("I've started that task for you.");
+                            session.endDialog("I've started that task for you. You can get the results at: " + run.response.body);
                         } else {
                             session.endDialog("I've finished that task for you.");
                         }
