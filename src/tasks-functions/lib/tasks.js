@@ -35,7 +35,28 @@ const LOCAL_TASKS = [{
             name: "lance_material"
         }
     ]
-}];
+},
+{
+    id: guid.EMPTY,
+    etag: guid.EMPTY,
+    lastUpdated: Date.now(),
+    title: "generate mosaic",
+    description: "Generates photo mosaic",
+    action: {
+        type: "url",
+        payload: {
+            url: "http://localhost:7072/api/RequestMosaic",
+            method: "POST"
+        }
+    },
+    parameters: [
+        {
+            prompt: "Source image url?",
+            name: "InputImageUrl"
+        }
+    ]
+}
+];
 
 /**
  * @typedef {Object} Action
