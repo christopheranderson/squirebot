@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "start": "func host start --cors *"
+    "start": "func host start"
   },
   "author": "",
   "license": "MIT",
