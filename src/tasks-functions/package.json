@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "start": "func host start --cors *"
+    "start": "func host start"
   },
   "author": "",
   "license": "MIT",
@@ -21,6 +21,6 @@
     "chai": "^4.1.2",
     "mocha": "^3.5.3",
     "supertest": "^3.0.0",
-    "azure-functions-core-tools":"~1.0.4"
+    "azure-functions-core-tools": "core"
   }
 }

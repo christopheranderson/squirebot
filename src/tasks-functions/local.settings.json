@@ -1,0 +1,9 @@
+{
+    "IsEncrypted": false,
+    "Host": {
+        "CORS": "*"
+    },    
+    "Values": {
+        "UseInMemoryStore":"true"
+    }
+}
