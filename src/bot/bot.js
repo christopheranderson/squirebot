@@ -22,4 +22,4 @@ bot.dialog('/handleParameters', handleParametersDialog).cancelAction("cancelPara
     confirmPrompt: "Are you sure?"
 });
 
-module.exports.connector = connector;   
+module.exports.connector = connector;
