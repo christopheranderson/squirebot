@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   mocked: false,
-  baseUrl: ""
+  baseUrl: "https://<YOURNAME>.azurewebsites.net"
 };
