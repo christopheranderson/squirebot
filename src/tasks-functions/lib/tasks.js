@@ -13,49 +13,46 @@ const db = new MongoHelper(url);
  * @type {Task[]}
  */
 const LOCAL_TASKS = [{
-    id: guid.EMPTY,
-    etag: guid.EMPTY,
-    lastUpdated: Date.now(),
-    title: "Fetch me my lance",
-    description: "Fetches an ascii lance",
-    action: {
-        type: "url",
-        payload: {
-            url: "http://localhost:7071/api/lanceFetcher",
-            method: "POST"
-        }
-    },
-    parameters: [
-        {
-            prompt: "The long one or the short one? (long|short)",
-            name: "lance_length"
+        id: guid.EMPTY,
+        etag: guid.EMPTY,
+        lastUpdated: Date.now(),
+        title: "Fetch me my lance",
+        description: "Fetches an ascii lance",
+        action: {
+            type: "url",
+            payload: {
+                url: "http://localhost:7071/api/lanceFetcher",
+                method: "POST"
+            }
         },
-        {
-            prompt: "What material would you live it made of? (wood|metal)",
-            name: "lance_material"
-        }
-    ]
-},
-{
-    id: guid.EMPTY,
-    etag: guid.EMPTY,
-    lastUpdated: Date.now(),
-    title: "generate mosaic",
-    description: "Generates photo mosaic",
-    action: {
-        type: "url",
-        payload: {
-            url: "http://localhost:7072/api/RequestMosaic",
-            method: "POST"
-        }
+        parameters: [{
+                prompt: "The long one or the short one? (long|short)",
+                name: "lance_length"
+            },
+            {
+                prompt: "What material would you live it made of? (wood|metal)",
+                name: "lance_material"
+            }
+        ]
     },
-    parameters: [
-        {
+    {
+        id: guid.EMPTY,
+        etag: guid.EMPTY,
+        lastUpdated: Date.now(),
+        title: "generate mosaic",
+        description: "Generates photo mosaic",
+        action: {
+            type: "url",
+            payload: {
+                url: "http://localhost:7072/api/RequestMosaic",
+                method: "POST"
+            }
+        },
+        parameters: [{
             prompt: "Source image url?",
             name: "InputImageUrl"
-        }
-    ]
-}
+        }]
+    }
 ];
 
 /**
@@ -119,20 +116,26 @@ class TaskService {
             }
 
         } else {
-            return db.getOne(TASKS_COLLECTION, { id });
+            return db.getOne(TASKS_COLLECTION, {
+                id
+            });
         }
     }
 
     getTaskByName(title) {
         if (this.useInMemory) {
-            const task = LOCAL_TASKS.find(task => task.title === title);
+            const task = LOCAL_TASKS.find(task => task.title.toLowerCase() === title.toLowerCase());
             if (!task) {
                 return Promise.reject("Not found");
             } else {
                 return Promise.resolve(task);
             }
         } else {
-            return db.getOne(TASKS_COLLECTION, { title });
+            return db.getOne(TASKS_COLLECTION, {
+                title: {
+                    $regex: new RegExp(title, "ig")
+                }
+            });
         }
     }
 
@@ -236,7 +239,10 @@ class TaskService {
                 old.etag = guid.raw();
                 old.lastUpdated = Date.now();
                 LOCAL_TASKS[i] = old;
-                return Promise.resolve({ id: old.id, etag: old.etag });
+                return Promise.resolve({
+                    id: old.id,
+                    etag: old.etag
+                });
             } else if (i < 0) {
                 return Promise.reject("Not found");
             } else if (LOCAL_TASKS[i].etag !== task.etag) {
@@ -370,7 +376,8 @@ class TaskRunnerService {
         return new Promise((res, rej) => {
             request(options, (err, response, body) => {
                 if (err || !(response.statusCode >= 200 && response.statusCode <= 204)) {
-                    let message = "Sorry, something went wrong";
+                    let message = "Sorry, something went wrong+\n";
+                    message += JSON.stringify(response, null, " ");
                     if (body && body.message) {
                         message += ": " + body.message;
                     }
@@ -404,7 +411,9 @@ class TaskRunnerService {
                 return Promise.reject(new Error("Not Found"));
             }
         } else {
-            return db.getOne(RUNS_COLLECTION, {"task.id": taskid});
+            return db.getOne(RUNS_COLLECTION, {
+                "task.id": taskid
+            });
         }
     }
 
@@ -423,7 +432,9 @@ class TaskRunnerService {
                 return Promise.reject(new Error("Not found"));
             }
         } else {
-            return db.getOne(RUNS_COLLECTION, {id});
+            return db.getOne(RUNS_COLLECTION, {
+                id
+            });
         }
     }
 
